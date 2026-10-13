@@ -40,7 +40,8 @@ form.addEventListener("submit", async (event) => {
     status.textContent = "AI is thinking...";
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/chat", {
+        // await fetch("http://127.0.0.1:8000/chat", {
+        const response = await fetch("https://ai-chatbot-28dv.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

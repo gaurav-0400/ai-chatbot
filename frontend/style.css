@@ -418,3 +418,98 @@ header p {
         padding: 3px 14px 10px;
     }
 }
+
+/* ---------- Markdown response formatting ---------- */
+
+.message.bot {
+    max-width: 92%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.message.bot > :first-child {
+    margin-top: 0;
+}
+
+.message.bot > :last-child {
+    margin-bottom: 0;
+}
+
+.message.bot h1,
+.message.bot h2,
+.message.bot h3 {
+    line-height: 1.35;
+    margin: 18px 0 8px;
+    color: #172033;
+}
+
+.message.bot h1 {
+    font-size: 1.4rem;
+}
+
+.message.bot h2 {
+    font-size: 1.2rem;
+}
+
+.message.bot h3 {
+    font-size: 1.05rem;
+}
+
+.message.bot p {
+    margin: 9px 0;
+}
+
+.message.bot ul,
+.message.bot ol {
+    padding-left: 24px;
+    margin: 10px 0;
+}
+
+.message.bot li {
+    margin: 5px 0;
+}
+
+.message.bot pre {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 15px;
+    border-radius: 10px;
+    background: #1e293b;
+    color: #f8fafc;
+    line-height: 1.55;
+    font-size: 13px;
+}
+
+.message.bot pre code {
+    font-family: Consolas, monospace;
+    white-space: pre;
+}
+
+.message.bot :not(pre) > code {
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: #e5e7eb;
+    font-family: Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.message.bot blockquote {
+    margin: 12px 0;
+    padding: 8px 14px;
+    border-left: 3px solid #635bff;
+    background: #e9eaff;
+}
+
+.message.bot table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+}
+
+.message.bot th,
+.message.bot td {
+    padding: 8px 10px;
+    border: 1px solid #dfe3ee;
+    text-align: left;
+}

@@ -20,13 +20,43 @@ newChatBtn.addEventListener("click", () => {
     input.focus();
 });
 
+// function addMessage(text, sender) {
+//     const message = document.createElement("div");
+//     message.className = `message ${sender}`;
+//     message.textContent = text;
+//     chatBox.appendChild(message);
+//     chatBox.scrollTop = chatBox.scrollHeight;
+// }
+
+
 function addMessage(text, sender) {
     const message = document.createElement("div");
     message.className = `message ${sender}`;
-    message.textContent = text;
+
+    if (sender === "bot") {
+        // Convert Markdown to HTML, then sanitize it
+        const html = marked.parse(text || "");
+        message.innerHTML = DOMPurify.sanitize(html);
+
+        // Highlight code blocks
+        // message.querySelectorAll("pre code").forEach((block) => {
+        //     hljs.highlightElement(block);
+        if (typeof hljs !== "undefined") {
+        message.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block);
+        });
+    }}
+    else {
+        // Always treat user messages as plain text
+        message.textContent = text;
+    }
+
     chatBox.appendChild(message);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+
+
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -40,8 +70,9 @@ form.addEventListener("submit", async (event) => {
     status.textContent = "AI is thinking...";
 
     try {
+        const response = await fetch("http://127.0.0.1:8000/chat", {
         // await fetch("http://127.0.0.1:8000/chat", {
-        const response = await fetch("https://ai-chatbot-28dv.onrender.com/chat", {
+        // const response = await fetch("https://ai-chatbot-28dv.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

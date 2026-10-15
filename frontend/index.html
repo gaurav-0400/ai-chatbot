@@ -32,16 +32,57 @@
             </div>
         </div>
 
-        <form id="chat-form">
+
+        
+        
+
+<form id="chat-form">
+    <div class="input-container">
+
+        <textarea
+            id="user-input"
+            placeholder="Ask anything..."
+            rows="1"
+            aria-label="Message"
+        ></textarea>
+
+        <!-- Selected attachment preview -->
+        <div id="attachment-preview" hidden>
+            <span class="file-icon">📄</span>
+            <span id="file-name"></span>
+            <button
+                type="button"
+                id="remove-file-btn"
+                aria-label="Remove attachment"
+                title="Remove attachment"
+            >×</button>
+        </div>
+
+        <!-- Bottom toolbar -->
+        <div class="input-toolbar">
             <input
-                type="text"
-                id="user-input"
-                placeholder="Type your message..."
-                autocomplete="off"
-                required
-            >
+                type="file"
+                id="file-input"
+                accept=".pdf,.txt,.docx,.py,.js,.html,.css,.json,.md"
+                hidden
+            />
+
+            <button
+                type="button"
+                id="attach-btn"
+                class="attach-btn"
+                title="Attach a file"
+                aria-label="Attach a file"
+            >📎</button>
+
+            <span class="input-hint">Attach a file (optional)</span>
+
             <button type="submit" id="send-btn">Send</button>
-        </form>
+        </div>
+
+    </div>
+</form>
+
 
         <p id="status" role="status"></p>
     </div>

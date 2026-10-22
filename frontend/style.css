@@ -1,18 +1,43 @@
 /* =========================================================
-   AI Chat Assistant — Clean stylesheet
+   AI Chat Assistant — Updated stylesheet
+   Same selectors as before, so your HTML and JS keep working.
    ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap");
 
 /* ---------- Theme ---------- */
 :root {
-    --primary: #635bff;
-    --primary-dark: #4f46e5;
-    --page-bg: #f4f6fc;
-    --text: #172033;
-    --muted: #788196;
-    --border: #e8eaf2;
-    --assistant-bg: #f2f4fa;
-    --white: #ffffff;
-    --shadow: 0 24px 70px rgba(31, 41, 85, 0.12);
+    --accent: #2f5bea;
+    --accent-hover: #2349c9;
+    --accent-soft: #e8eeff;
+    --page-bg: #eef1f6;
+    --surface: #ffffff;
+    --text: #1a2233;
+    --muted: #6b7489;
+    --border: #e2e6ef;
+    --assistant-bg: #f1f3f8;
+    --code-bg: #1b2336;
+    --inline-code-bg: #e3e7f0;
+    --shadow: 0 18px 50px rgba(26, 34, 51, 0.1);
+    --danger: #c0392b;
+}
+
+/* Automatic dark mode (follows the device setting) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --accent: #5b7fff;
+        --accent-hover: #7b98ff;
+        --accent-soft: #1f2a4d;
+        --page-bg: #0d111b;
+        --surface: #151b29;
+        --text: #e6eaf4;
+        --muted: #98a1b8;
+        --border: #262e42;
+        --assistant-bg: #1c2335;
+        --code-bg: #0a0e17;
+        --inline-code-bg: #262e42;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    }
 }
 
 * {
@@ -26,15 +51,19 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    padding: 28px;
+    padding: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--text);
-    font-family: "Segoe UI", Arial, sans-serif;
-    background:
-        radial-gradient(circle at top left, #e4e8ff 0, transparent 38%),
-        linear-gradient(135deg, #f7f8fc, #edf0fa);
+    font-family: "DM Sans", "Segoe UI", Arial, sans-serif;
+    background: var(--page-bg);
+}
+
+/* Visible keyboard focus for accessibility */
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 /* ---------- Main chat window ---------- */
@@ -42,13 +71,13 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 900px;
-    height: min(850px, calc(100vh - 56px));
+    max-width: 920px;
+    height: min(880px, calc(100vh - 48px));
     min-height: 480px;
     overflow: hidden;
-    background: var(--white);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     box-shadow: var(--shadow);
 }
 
@@ -56,62 +85,63 @@ body {
 header {
     position: relative;
     flex-shrink: 0;
-    padding: 25px 150px 20px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.96);
+    padding: 18px 130px 16px 24px;
+    text-align: left;
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
 }
 
 header h2 {
+    display: flex;
+    align-items: center;
+    gap: 11px;
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: -0.7px;
+    letter-spacing: -0.3px;
 }
 
 header h2::before {
     content: "✦";
     display: inline-flex;
-    width: 34px;
-    height: 34px;
-    margin-right: 10px;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
     align-items: center;
     justify-content: center;
-    color: var(--white);
-    font-size: 19px;
-    vertical-align: middle;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #8178ff, #5145e5);
-    box-shadow: 0 5px 14px rgba(99, 91, 255, 0.25);
+    color: #ffffff;
+    font-size: 16px;
+    background: var(--accent);
+    border-radius: 9px;
 }
 
 header p {
-    margin: 10px 0 0;
+    margin: 4px 0 0 43px;
     color: var(--muted);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* ---------- New chat button ---------- */
 #new-chat-btn {
     position: absolute;
-    top: 27px;
-    right: 25px;
-    padding: 10px 15px;
-    color: var(--primary);
+    top: 50%;
+    right: 22px;
+    padding: 9px 14px;
+    color: var(--accent);
+    font-family: inherit;
     font-size: 13px;
     font-weight: 600;
-    background: #f0efff;
-    border: 1px solid #e5e2ff;
+    background: var(--accent-soft);
+    border: 1px solid transparent;
     border-radius: 10px;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transform: translateY(-50%);
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 #new-chat-btn:hover {
-    color: var(--white);
-    background: var(--primary);
-    border-color: var(--primary);
-    transform: translateY(-1px);
+    color: #ffffff;
+    background: var(--accent);
 }
 
 /* ---------- Conversation area ---------- */
@@ -119,11 +149,11 @@ header p {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 15px;
+    gap: 14px;
     min-height: 0;
     overflow-y: auto;
-    padding: 28px clamp(18px, 5%, 55px);
-    background: var(--white);
+    padding: 26px clamp(16px, 5%, 52px);
+    background: var(--surface);
     scroll-behavior: smooth;
 }
 
@@ -132,43 +162,41 @@ header p {
 }
 
 #chat-box::-webkit-scrollbar-thumb {
-    background: #d9dced;
+    background: var(--border);
     border-radius: 10px;
 }
 
 #chat-box::-webkit-scrollbar-thumb:hover {
-    background: #c4c9dd;
+    background: var(--muted);
 }
 
 /* ---------- Message bubbles ---------- */
 .message {
     width: fit-content;
-    max-width: 82%;
+    max-width: 80%;
     margin: 0;
-    padding: 14px 18px;
-    border-radius: 17px;
+    padding: 12px 16px;
+    border-radius: 16px;
     font-size: 15px;
     line-height: 1.65;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    animation: messageIn 0.22s ease-out;
+    animation: messageIn 0.2s ease-out;
 }
 
 .message.user {
     align-self: flex-end;
-    color: var(--white);
-    background: linear-gradient(135deg, #7168ff, #5548e8);
-    border-bottom-right-radius: 5px;
-    box-shadow: 0 5px 15px rgba(99, 91, 255, 0.15);
+    color: #ffffff;
+    background: var(--accent);
+    border-bottom-right-radius: 4px;
 }
 
 .message.bot {
     align-self: flex-start;
     max-width: 92%;
-    color: #273047;
+    color: var(--text);
     background: var(--assistant-bg);
-    border: 1px solid #eceef6;
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 4px;
     white-space: normal;
 }
 
@@ -178,6 +206,33 @@ header p {
 
 .message.bot > :last-child {
     margin-bottom: 0;
+}
+
+/* ---------- "AI is typing" indicator ----------
+   Optional. In JS, add a bot message like:
+   <div class="message bot typing"><span></span><span></span><span></span></div>
+   and remove it when the reply arrives. */
+.message.bot.typing {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 16px 18px;
+}
+
+.message.bot.typing span {
+    width: 7px;
+    height: 7px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: typingDot 1.2s infinite ease-in-out;
+}
+
+.message.bot.typing span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.message.bot.typing span:nth-child(3) {
+    animation-delay: 0.3s;
 }
 
 /* ---------- Markdown response formatting ---------- */
@@ -190,19 +245,23 @@ header p {
 }
 
 .message.bot h1 {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
 }
 
 .message.bot h2 {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
 }
 
 .message.bot h3 {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
 }
 
 .message.bot p {
     margin: 9px 0;
+}
+
+.message.bot a {
+    color: var(--accent);
 }
 
 .message.bot ul,
@@ -218,9 +277,10 @@ header p {
 .message.bot pre {
     max-width: 100%;
     overflow-x: auto;
-    padding: 15px;
-    color: #f8fafc;
-    background: #1e293b;
+    margin: 12px 0;
+    padding: 14px 16px;
+    color: #e8edf7;
+    background: var(--code-bg);
     border-radius: 10px;
     font-size: 13px;
     line-height: 1.55;
@@ -232,9 +292,9 @@ header p {
 }
 
 .message.bot :not(pre) > code {
-    padding: 2px 5px;
-    color: #263247;
-    background: #e5e7eb;
+    padding: 2px 6px;
+    color: var(--text);
+    background: var(--inline-code-bg);
     border-radius: 5px;
     font-family: Consolas, "Courier New", monospace;
     font-size: 0.9em;
@@ -243,8 +303,9 @@ header p {
 .message.bot blockquote {
     margin: 12px 0;
     padding: 8px 14px;
-    background: #e9eaff;
-    border-left: 3px solid var(--primary);
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
 }
 
 .message.bot table {
@@ -257,8 +318,12 @@ header p {
 .message.bot th,
 .message.bot td {
     padding: 8px 10px;
-    border: 1px solid #dfe3ee;
+    border: 1px solid var(--border);
     text-align: left;
+}
+
+.message.bot th {
+    background: var(--accent-soft);
 }
 
 /* ---------- Composer form ---------- */
@@ -268,23 +333,28 @@ header p {
     align-items: center;
     width: 100%;
     min-width: 0;
-    padding: 12px 25px 10px;
-    background: var(--white);
+    padding: 12px 24px 8px;
+    background: var(--surface);
 }
 
-/* The form should contain .input-container around the textarea,
-   attachment preview, and toolbar. */
+/* Wraps the textarea, attachment preview, and toolbar */
 .input-container {
     display: flex;
     flex-direction: column;
     gap: 8px;
     width: 100%;
     min-width: 0;
-    padding: 12px;
-    background: var(--white);
-    border: 1px solid #d8dcef;
-    border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Highlight the whole box while typing */
+.input-container:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* Auto-growing textarea; JavaScript adjusts its inline height. */
@@ -304,7 +374,7 @@ header p {
     outline: none;
     box-shadow: none;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     resize: none;
     overflow-y: hidden;
@@ -313,10 +383,11 @@ header p {
 }
 
 #user-input::placeholder {
-    color: #969db0;
+    color: var(--muted);
 }
 
-#user-input:focus {
+#user-input:focus,
+#user-input:focus-visible {
     border-color: transparent;
     outline: none;
     box-shadow: none;
@@ -330,8 +401,8 @@ header p {
     width: fit-content;
     max-width: 100%;
     padding: 7px 10px;
-    background: #f5f6fb;
-    border: 1px solid #e0e3ee;
+    background: var(--assistant-bg);
+    border: 1px solid var(--border);
     border-radius: 10px;
 }
 
@@ -346,8 +417,8 @@ header p {
 #file-name {
     flex: 1;
     min-width: 0;
-    color: #5d6579;
-    font-size: 12px;
+    color: var(--text);
+    font-size: 13px;
     overflow-wrap: anywhere;
 }
 
@@ -359,24 +430,26 @@ header p {
     align-items: center;
     justify-content: center;
     padding: 0;
-    color: #30364a;
-    background: #e5e7ef;
+    color: var(--text);
+    background: var(--border);
     border: none;
     border-radius: 50%;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
     cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 #remove-file-btn:hover {
-    background: #d4d8e5;
+    color: #ffffff;
+    background: var(--danger);
 }
 
 /* ---------- Bottom toolbar ---------- */
 .input-toolbar {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
     min-width: 0;
 }
@@ -384,54 +457,55 @@ header p {
 .attach-btn {
     display: inline-flex;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     align-items: center;
     justify-content: center;
     padding: 0;
-    color: #30364a;
+    color: var(--muted);
     background: transparent;
     border: none;
-    border-radius: 50%;
+    border-radius: 10px;
     font-size: 21px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .attach-btn:hover {
-    background: #eff0ff;
+    color: var(--accent);
+    background: var(--accent-soft);
 }
 
 .input-hint {
     flex: 1;
     min-width: 0;
-    color: #858ba0;
-    font-size: 11px;
+    color: var(--muted);
+    font-size: 12px;
 }
 
 /* ---------- Send button ---------- */
 #send-btn {
     flex-shrink: 0;
-    padding: 12px 20px;
-    color: var(--white);
-    background: linear-gradient(135deg, #7168ff, #5548e8);
+    min-width: 76px;
+    height: 38px;
+    padding: 0 20px;
+    color: #ffffff;
+    background: var(--accent);
     border: none;
-    border-radius: 13px;
+    border-radius: 10px;
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 5px 13px rgba(99, 91, 255, 0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background 0.2s ease;
 }
 
 #send-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(99, 91, 255, 0.3);
+    background: var(--accent-hover);
 }
 
 #send-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
 }
 
@@ -440,9 +514,9 @@ header p {
     flex-shrink: 0;
     min-height: 24px;
     margin: 0;
-    padding: 3px 30px 10px;
+    padding: 2px 28px 10px;
     color: var(--muted);
-    background: var(--white);
+    background: var(--surface);
     font-size: 12px;
 }
 
@@ -450,7 +524,7 @@ header p {
 @keyframes messageIn {
     from {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(5px);
     }
 
     to {
@@ -459,11 +533,25 @@ header p {
     }
 }
 
+@keyframes typingDot {
+    0%,
+    80%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
+
 /* ---------- Responsive layout ---------- */
 @media (max-width: 600px) {
     body {
         padding: 0;
-        background: var(--white);
+        background: var(--surface);
     }
 
     .chat-container {
@@ -477,30 +565,36 @@ header p {
     }
 
     header {
-        padding: 20px 12px 16px;
+        padding: 14px 108px 12px 14px;
     }
 
     header h2 {
-        font-size: 20px;
+        font-size: 18px;
+    }
+
+    header h2::before {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
     }
 
     header p {
+        margin-left: 39px;
         font-size: 12px;
     }
 
     #new-chat-btn {
-        position: static;
-        margin-top: 12px;
-        padding: 8px 13px;
+        right: 12px;
+        padding: 8px 12px;
     }
 
     #chat-box {
-        padding: 20px 14px;
+        padding: 18px 14px;
     }
 
     .message {
         max-width: 90%;
-        padding: 12px 14px;
+        padding: 11px 14px;
         font-size: 14px;
     }
 
@@ -509,27 +603,23 @@ header p {
     }
 
     #chat-form {
-        padding: 10px 12px 8px;
+        padding: 10px 12px 6px;
     }
 
     .input-container {
-        padding: 9px;
-    }
-
-    #user-input {
-        font-size: 14px;
+        padding: 10px;
     }
 
     #send-btn {
-        padding: 11px 16px;
+        padding: 0 16px;
     }
 
     #status {
-        padding: 3px 14px 8px;
+        padding: 2px 14px 8px;
     }
 
     .input-hint {
-        font-size: 10px;
+        font-size: 11px;
     }
 }
 

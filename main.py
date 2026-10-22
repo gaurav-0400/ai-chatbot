@@ -1,4 +1,6 @@
 import os
+DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+import pytesseract
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
@@ -7,17 +9,52 @@ from groq import AsyncGroq, APIStatusError
 
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Literal #####
-from docx import Document
+from docx import Document   
 import pymupdf
 from pathlib import Path
 import io
 import json
-import pytesseract
 from PIL import Image
-# import os
+import platform
+# if platform.system =="Windows":
+#     pytesseract.pytesseract.tesseract_cmd = r"C:\Users\gaurav.kumar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+import os
+import platform
+import shutil
 
 
+def find_tesseract():
+    # 1. Optional override from an environment variable
+    env_path = os.getenv("TESSERACT_CMD")
+    if env_path and os.path.exists(env_path):
+        return env_path
 
+    # 2. Already on PATH (works on Render/Linux with Docker)
+    on_path = shutil.which("tesseract")
+    if on_path:
+        return on_path
+
+    # 3. Common Windows install locations
+    if platform.system() == "Windows":
+        candidates = [
+            os.path.join(os.getenv("LOCALAPPDATA", ""), "Programs", "Tesseract-OCR", "tesseract.exe"),
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        ]
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+
+    return None
+
+
+tesseract_path = find_tesseract()
+if tesseract_path:
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+print("Tesseract path:", tesseract_path)
+
+
+    
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 
@@ -25,8 +62,6 @@ if not api_key:
     raise RuntimeError ("GROQ_API_KEY is missing from the .env file")
 
 client = AsyncGroq(api_key=api_key)
-
-# app= FastAPI(title= "AI Chatbot API")
 
 app = FastAPI(title="AI Chatbot API")
 
@@ -37,6 +72,8 @@ app.add_middleware(
         "http://localhost:5500",
         "http://127.0.0.1:5501",
         "http://localhost:5501",
+        "http://localhost:8000",
+
         "https://ai-chatbot-frontend-kxlg.onrender.com"
     ],
     allow_credentials=False,
@@ -70,7 +107,17 @@ MAX_EXTRACTED_CHARS = 30000
 
 ALLOWED_EXTENSIONS = {
     ".pdf", ".txt", ".docx", ".py", ".js",
-    ".html", ".css", ".json", ".md"
+    ".html", ".css", ".json", ".md",
+    ".png", ".jpg", ".jpeg", ".webp", ".gif"
+}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+
+IMAGE_MIME_TYPES = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
 }
 
 
@@ -119,38 +166,12 @@ def extract_file_text(filename: str, content: bytes) -> str:
                 for paragraph in document.paragraphs
             )
 
+        elif extension in IMAGE_EXTENSIONS:
+            image = Image.open(io.BytesIO(content)).convert("RGB")
+            text = pytesseract.image_to_string(image)
+
         else:
             text = content.decode("utf-8-sig")
-
-    # except HTTPException:
-    #     raise
-
-    # except APIStatusError as e:
-    #     if e.status_code == 413 or "rate_limit_exceeded" in str(e):
-    #         raise HTTPException(
-    #             status_code=413,
-    #             detail=(
-    #                 "The uploaded file or conversation contains too much text "
-    #                 "for the AI to process at once. Please upload a smaller file "
-    #                 "or try a shorter conversation."
-    #             )
-    #         )
-
-    # raise HTTPException(
-    #     status_code=502,
-    #     detail="The AI service is temporarily unavailable. Please try again."
-    # )
-
-    # except Exception as exc:
-    #     import logging
-    #     logging.exception("File extraction failed")
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail=(
-    #             "Could not read this file. Check its format "
-    #             "and make sure Tesseract OCR is installed."
-    #         )
-    #     ) from exc
 
     except HTTPException:
         raise
@@ -158,13 +179,13 @@ def extract_file_text(filename: str, content: bytes) -> str:
     except Exception as exc:
         import logging
         logging.exception("File extraction failed")
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Could not read this file. Check its format "
-                "and make sure Tesseract OCR is installed."
-            )
-        ) from exc
+        detail = (
+            "Could not read this file. Check its format "
+            "and make sure Tesseract OCR is installed."
+        )
+        if DEBUG:
+            detail += f" (Error: {type(exc).__name__}: {exc})"
+        raise HTTPException(status_code=400, detail=detail) from exc
 
     text = text[:MAX_EXTRACTED_CHARS]
 
@@ -172,88 +193,12 @@ def extract_file_text(filename: str, content: bytes) -> str:
         raise HTTPException(
             status_code=400,
             detail=(
-                "No readable text found. The PDF may be blank, "
+                "No readable text found. The file may be blank, "
                 "or OCR could not recognize its text."
             )
         )
 
     return text
-
-
-
-
-
-
-
-
-@app.get("/")
-def home():
-    return {"message": "AI Chatbot API is running"}
-
-
-# @app.post("/chat", response_model=ChatResponse)
-# async def chat(request: ChatRequest):
-#     try:
-#         messages = [
-#             {
-#                 "role": "system",
-#                 # "content": (
-#                 #     "You are a helpful AI assistant. "
-#                 #     "Answer clearly and accurately. "
-#                 #     "Use the conversation history to understand "
-#                 #     "follow-up questions."
-#                 "content": (
-#                     "You are a helpful, professional AI assistant.\n\n"
-#                     "Response guidelines:\n"
-#                     "1. Answer the user's question directly and accurately.\n"
-#                     "2. Use clear, simple language that is easy to understand.\n"
-#                     "3. Format responses using Markdown when appropriate.\n"
-#                     "4. Use short headings to organize longer answers.\n"
-#                     "5. Use bullet points for lists and numbered steps for procedures.\n"
-#                     "6. Put programming code inside properly labeled code blocks.\n"
-#                     "7. Use tables only when they make comparisons easier to understand.\n"
-#                     "8. Give practical examples when they help explain a concept.\n"
-#                     "9. Keep simple answers short. Provide detailed explanations only when needed.\n"
-#                     "10. For follow-up questions, use the conversation history to understand the context.\n"
-#                     "11. If the question is unclear, ask a brief clarifying question.\n"
-#                     "12. Do not add unnecessary introductions, repeated conclusions, or irrelevant information.\n"
-#                     "13. Never invent facts. Clearly state when you are uncertain.\n"
-#                     "14. Do not use Markdown formatting excessively; keep responses clean and readable."
-#                     "15. For educational or technical answers, use this structure when appropriate: "
-#                     "brief definition, explanation, example, and key takeaway. "
-#                     "Use Markdown headings, lists, and code blocks only when useful.\n"
-#                 ),
-                
-#             }
-#         ]
-
-#         # Include previous conversation messages
-#         messages.extend(
-#             item.model_dump() for item in request.history
-#         )
-
-#         # Add the current question
-#         messages.append({
-#             "role" :"user",
-#             "content": request.message,
-#         })
-
-#         response = await client.chat.completions.create(
-#             model="openai/gpt-oss-20b",
-#             messages=messages,
-#             temperature=0.7,
-#         )
-
-#         answer = response.choices[0].message.content
-
-#         return ChatResponse(reply=answer or "")
-#     except Exception:
-#         import logging
-#         logging.exception("Groq API request failed")
-
-
-
-
 
 
 
@@ -280,19 +225,14 @@ async def chat(
                 "message": validated_message,
                 "history": history_data,
             })
-
-        # except (json.JSONDecodeError, ValidationError) as exc:
-        #     raise HTTPException(
-        #         status_code=400,
-        #         detail="Invalid message or conversation history."
-        #     ) from exc
-     
+            
         except (json.JSONDecodeError, ValidationError) as exc:
             print("VALIDATION ERROR:", repr(exc))
             raise HTTPException(
                 status_code=400,
                 detail=str(exc)
             ) from exc
+        
 
 
         # Extract text from an optional attachment
@@ -375,23 +315,14 @@ async def chat(
 
         return ChatResponse(reply=answer or "")
 
-    except HTTPException:
-        raise
-
-    # except Exception:
-    #     import logging
-    #     logging.exception("Groq API request failed")
-
-    #     raise HTTPException(
-    #         status_code=502,
-    #         detail="Unable to generate the answer. Please try again later."
-    #     )
-
 
     except HTTPException:
         raise
 
     except APIStatusError as exc:
+        import logging
+        logging.exception("AI API error (status %s)", exc.status_code)
+
         if exc.status_code == 413 or "rate_limit_exceeded" in str(exc):
             raise HTTPException(
                 status_code=413,
@@ -401,44 +332,22 @@ async def chat(
                 )
             ) from exc
 
-        raise HTTPException(
-            status_code=502,
-            detail="AI service error. Please try again."
-        ) from exc
+        detail = "AI service error. Please try again."
+        if DEBUG:
+            detail += f" (Error: {exc.status_code}: {exc})"
+
+        raise HTTPException(status_code=502, detail=detail) from exc
 
     except Exception as exc:
         import logging
         logging.exception("Chat endpoint failed")
 
-        print(f"ERROR TYPE: {type(exc).__name__}")
-        print(f"ERROR DETAILS: {exc}")
+        detail = "Unable to generate the answer. Please try again."
+        if DEBUG:
+            detail += f" (Error: {type(exc).__name__}: {exc})"
 
-        raise HTTPException(
-            status_code=502,
-            detail="Unable to generate the answer. Please try again."
-        ) from exc
+        raise HTTPException(status_code=502, detail=detail) from exc
 
     finally:
         if file is not None:
             await file.close()
-
-
-
-    # except Exception as exc:
-    #     import logging
-    #     logging.exception("Chat endpoint failed")
-
-    #     print(f"ERROR TYPE: {type(exc).__name__}")
-    #     print(f"ERROR DETAILS: {exc}")
-
-    #     raise HTTPException(
-    #         status_code=502,
-    #         detail=f"{type(exc).__name__}: {str(exc)}"
-    #     )
-
-    # finally:
-    #     if file is not None:
-    #         await file.close()
-
-
-    

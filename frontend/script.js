@@ -13,6 +13,9 @@ const attachmentPreview = document.getElementById("attachment-preview");
 const removeFileBtn = document.getElementById("remove-file-btn");
 const attachBtn = document.getElementById("attach-btn");
 
+const chatForm = document.getElementById("chat-form");
+const userInput = document.getElementById("user-input");
+
 
 const history = [];
 
@@ -177,8 +180,8 @@ form.addEventListener("submit", async (event) => {
     status.textContent = "AI is thinking...";
 
     try {
-        // const response = await fetch("http://127.0.0.1:8000/chat", {
-        const response = await fetch("https://ai-chatbot-28dv.onrender.com/chat", {
+        const response = await fetch("http://127.0.0.1:8000/chat", {
+        // const response = await fetch("https://ai-chatbot-28dv.onrender.com/chat", {
             method: "POST",
             body: formData
         });
@@ -233,6 +236,14 @@ form.addEventListener("submit", async (event) => {
 //     fileName.textContent = file ? file.name : "";
 // });
 
+
+userInput.addEventListener("keydown", (e) => {
+    // Enter = send, Shift+Enter = new line
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+        e.preventDefault();          // stops a new line being added
+        chatForm.requestSubmit();    // runs your existing submit code
+    }
+});
 
 
 const MAX_INPUT_HEIGHT = 180;
